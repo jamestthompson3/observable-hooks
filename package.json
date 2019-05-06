@@ -1,0 +1,24 @@
+{
+  "name": "obsv-hooks",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "yarn parcel index.html",
+    "watch": "yarn parcel watch index.html"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "parcel": "^1.12.3",
+    "react": "^0.14.0 || ^15.0.0 || ^16.0.0",
+    "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.0",
+    "recompose": "^0.30.0",
+    "rxjs": "^6.5.1",
+    "src": "^1.1.2",
+    "styled-components": "^4.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^3.4.5"
+  }
+}
