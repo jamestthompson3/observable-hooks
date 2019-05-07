@@ -16,6 +16,9 @@ export class SharedSubjectStore implements SharedSubject {
   public getSubscriber = (key: string) => this.subjects[key]
 
   public createSubscription = (key: string) => {
+    const subject = this.subjects[key]
+    const storevalue = this.store[key]
+    if (subject && storevalue) return subject
     this.subjects[key] = new Subject()
     this.store[key] = undefined
     return this.subjects[key]

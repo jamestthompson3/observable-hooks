@@ -112,7 +112,7 @@ export const AddPopup = ({ open, onChange, handleSubmit, text, closeModal }) => 
       handleSubmit().then(() => closeModal())
     }}
   >
-    <StyledInput autoFocus value={text} onChange={onChange} />
+    <StyledInput autoFocus value={text} onChange={e => onChange(e.target.value)} />
     <Button style={{ float: 'right' }} type="submit">
       Submit
     </Button>
