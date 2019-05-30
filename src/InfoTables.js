@@ -7,12 +7,8 @@ const LikesList = () => {
   const user = USER_STORE.getValue('selectedUser')
   const [isOpen, setIsOpen] = React.useState(false)
   const [text, setText] = React.useState('')
-  const toggleModal = React.useCallback(
-    () => {
-      setIsOpen(!isOpen)
-    },
-    [isOpen]
-  )
+  const toggleModal = () => setIsOpen(!isOpen)
+
   return (
     <>
       <ListHeader>
@@ -46,12 +42,7 @@ const DislikesList = () => {
   const user = USER_STORE.getValue('selectedUser')
   const [isOpen, setIsOpen] = React.useState(false)
   const [text, setText] = React.useState('')
-  const toggleModal = React.useCallback(
-    () => {
-      setIsOpen(!isOpen)
-    },
-    [isOpen]
-  )
+  const toggleModal = () => setIsOpen(!isOpen)
   return (
     <>
       <ListHeader>
