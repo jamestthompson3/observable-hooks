@@ -1,13 +1,14 @@
-interface User {
+export interface User {
   user: string
   likes: Item[]
   dislikes: Item[]
 }
 
-interface Item {
+export interface Item {
   id: number
   item: string
 }
+
 const userList = [
   {
     user: 'sam',
@@ -84,10 +85,10 @@ const userList = [
 
 export const fetchUsers = () => new Promise((res, rej) => setTimeout(res, 1000, userList))
 
-export const deleteUserLike = (user: User, id: number) =>
+export const deleteUserLike = (user: string, id: number) =>
   new Promise((res, rej) => res({ status: 200 }))
 
-export const deleteUserDislike = (user: User, id: number) =>
+export const deleteUserDislike = (user: string, id: number) =>
   new Promise((res, rej) => res({ status: 200 }))
 
 export const addUserLike = (user: string, item: string) =>

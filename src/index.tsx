@@ -3,26 +3,35 @@ import { BrowserRouter, withRouter, Route } from 'react-router-dom'
 import { get } from 'lodash'
 
 import { SharedSubjectStore } from './datastructures/sharedValue'
-import { useSubscription } from '../hooks/use-data-store.hook'
+import { useSubscription, useSelector } from '../hooks/use-data-store.hook'
 import { PageWrapper, ListContainer, ListItem, Loader, UserContainer } from './styledComponents'
 import { InfoTables } from './InfoTables'
 import { fetchUsers, User } from './asyncData'
 
-export const USER_STORE = new SharedSubjectStore()
-// for debugging
-window.user_store = USER_STORE
+function memoUsers(updateUser) {
+  const cache = {}
+  return function(userList) {
+    const key = JSON.stringify(userList.map(user => user.user))
+    if (cache[key]) {
+      // don't call to re-render
+    } else {
+      cache[key] = key
+      updateUser.apply(null, arguments)
+    }
+  }
+}
 
-function updateForKey(currentUsers: User[], nextUsers: User[], key: string) {}
+export const USER_STORE = new SharedSubjectStore()
+USER_STORE.createSubscription('users')
+USER_STORE.createSubscription('selectedUser')
 
 function IndexPage({ match, history }) {
-  console.log('indexpage rendered')
+  console.log('indexpage rendered') // we should expect this to only happen twice
   // useState is necessary with these subscriptions to force top level re-renders
   const [userList, setUserList] = React.useState([])
   const [selectedUser, setSelectedUser] = React.useState(null)
-  const userSub = useSubscription(USER_STORE, 'users', users => setUserList(users))
-  const selectedUserSub = useSubscription(USER_STORE, 'selectedUser', selected =>
-    setSelectedUser(selected)
-  )
+  const userSub = useSelector(USER_STORE, 'users', memoUsers(setUserList))
+  const selectedUserSub = useSelector(USER_STORE, 'selectedUser', user => setSelectedUser(user))
   React.useEffect(() => {
     fetchUsers().then(users => {
       USER_STORE.setValue('users', users)
@@ -36,33 +45,30 @@ function IndexPage({ match, history }) {
     [userList]
   )
 
-  if (selectedUser) {
-    userParam !== selectedUser.user && history.push(`/${selectedUser.user}`)
-  }
+  React.useEffect(
+    () => {
+      if (selectedUser) {
+        userParam !== selectedUser.user && history.push(`/${selectedUser.user}`)
+      }
+    },
+    [selectedUser]
+  )
   const userSelect = user => {
     const foundUser = userList.find(userInList => userInList.user === user.user)
     USER_STORE.setValue('selectedUser', foundUser)
   }
-  // Remove
-  const message = 'test'
-  status = 'SUCCESS'
+
   return (
     <PageWrapper>
       <UserContainer>
-        {status === 'SUCCESS' ? (
-          <>
-            <h3>Users</h3>
-            <ListContainer style={{ height: '500px' }}>
-              {userList.map((user, i) => (
-                <ListItem key={i} onClick={() => userSelect(user)} selected={user === selectedUser}>
-                  <p>{user.user}</p>
-                </ListItem>
-              ))}
-            </ListContainer>
-          </>
-        ) : (
-          <Loader status={status} message={message} />
-        )}
+        <h3>Users</h3>
+        <ListContainer style={{ height: '500px' }}>
+          {userList.map((user, i) => (
+            <ListItem key={i} onClick={() => userSelect(user)} selected={user === selectedUser}>
+              <p>{user.user}</p>
+            </ListItem>
+          ))}
+        </ListContainer>
       </UserContainer>
       {selectedUser && <InfoTables />}
     </PageWrapper>

@@ -1,38 +1,46 @@
 import * as React from 'react'
 
 import { TableContainer, LikesContainer, ListItem, ListHeader, AddPopup } from './styledComponents'
-import { USER_STORE } from './index.tsx'
+import { USER_STORE } from './index'
 import { addUserLike, addUserDislike, deleteUserLike, deleteUserDislike } from './asyncData.ts'
 
 const addLike = (user, text) =>
-  addUserLike(user.user, text).then(updatedUser =>
+  addUserLike(user, text).then(updatedUser =>
     USER_STORE.setAtomicValue('users', users => {
-      const targetUser = users.find(listUser => Object.is(listUser, user))
-      return users.map(listUser => (listUser === targetUser ? updatedUser : listUser))
+      const targetUser = users.find(listUser => listUser === user)
+      return users.map(listUser => (Object.is(listUser, targetUser) ? updatedUser : listUser))
     })
   )
 
 const deleteLike = (user, text) =>
-  deleteUserLike(user.user, text).then(updatedUser =>
+  deleteUserLike(user, text).then(({ status }) =>
     USER_STORE.setAtomicValue('users', users => {
-      const targetUser = users.find(listUser => Object.is(listUser, user))
-      return users.map(listUser => (listUser === targetUser ? updatedUser : listUser))
+      const targetUser = users.find(listUser => listUser.user === user)
+      return users.map(listUser =>
+        Object.is(listUser, targetUser) && status === 200
+          ? { ...listUser, likes: listUser.likes.filter(like => like !== text) }
+          : listUser
+      )
     })
   )
 
 const addDislike = (user, text) =>
-  addUserDislike(user.user, text).then(updatedUser =>
+  addUserDislike(user, text).then(updatedUser =>
     USER_STORE.setAtomicValue('users', users => {
-      const targetUser = users.find(listUser => Object.is(listUser, user))
-      return users.map(listUser => (listUser === targetUser ? updatedUser : listUser))
+      const targetUser = users.find(listUser => listUser.user === user)
+      return users.map(listUser => (Object.is(listUser, targetUser) ? updatedUser : listUser))
     })
   )
 
 const deleteDislike = (user, text) =>
-  deleteUserDislike(user.user, text).then(updatedUser =>
+  deleteUserDislike(user, text).then(({ status }) =>
     USER_STORE.setAtomicValue('users', users => {
-      const targetUser = users.find(listUser => Object.is(listUser, user))
-      return users.map(listUser => (listUser === targetUser ? updatedUser : listUser))
+      const targetUser = users.find(listUser => listUser.user === user)
+      return users.map(listUser =>
+        Object.is(listUser, targetUser) && status === 200
+          ? { ...listUser, dislikes: listUser.dislikes.filter(dislike => dislike !== text) }
+          : listUser
+      )
     })
   )
 const LikesList = () => {
@@ -53,14 +61,14 @@ const LikesList = () => {
         <AddPopup
           open={isOpen}
           onChange={setText}
-          handleSubmit={() => addLike(user, text)}
+          handleSubmit={() => addLike(user.user, text)}
           closeModal={toggleModal}
           text={text}
         />
         {user.likes.map(like => (
           <ListItem open={isOpen} key={like.item + like.id}>
             {like.item}
-            <i className="material-icons" onClick={() => deleteLike(user, like)}>
+            <i className="material-icons" onClick={() => deleteLike(user.user, like)}>
               delete
             </i>
           </ListItem>
@@ -87,7 +95,7 @@ const DislikesList = () => {
         <AddPopup
           open={isOpen}
           onChange={setText}
-          handleSubmit={() => addDislike(user, text)}
+          handleSubmit={() => addDislike(user.user, text)}
           closeModal={toggleModal}
           text={text}
         />

@@ -1,7 +1,8 @@
 import { Subject } from 'rxjs'
 
 type DataResolver = (dataSet: { [key: string]: any }[]) => any
-interface SharedSubject {
+
+export interface SharedSubject {
   getSubscriber(key: string): Subject<any>
   removeSubscriber(key: string): void
   getSubscription(key: string): Subject<any>
@@ -15,41 +16,49 @@ interface SharedSubject {
 }
 
 export class SharedSubjectStore implements SharedSubject {
-  private subjects: { [key: string]: Subject<any> } = {}
-  private store: { [key: string]: any } = {}
+  private subjects: Map<string, any> = new Map()
+  private store: Map<string, any> = new Map()
 
-  public getSubscription = (key: string) => this.subjects[key]
+  public getSubscription = (key: string) => this.subjects.get(key)
 
   public createSubscription = (key: string) => {
-    const subject = this.subjects[key]
-    const storevalue = this.store[key]
+    const subject = this.subjects.get(key)
+    const storevalue = this.store.get(key)
     if (subject && storevalue) return subject
-    this.subjects[key] = new Subject()
-    this.store[key] = undefined
-    return this.subjects[key]
+    this.subjects.set(key, new Subject())
+    this.store.set(key, undefined)
+    return this.subjects.get(key)
+  }
+
+  public getSubscriber = (key: string) => {
+    return this.subjects.get(key)
+  }
+
+  public removeSubscriber = (key: string) => {
+    this.subjects.delete(key)
   }
 
   public setValue = (key: string, value: any) => {
-    this.store[key] = value
-    this.subjects[key].next(value)
+    this.store.set(key, value)
+    this.subjects.get(key).next(value)
   }
 
   public setAtomicValue = (key: string, dataResolver: DataResolver) => {
-    const collection = this.store[key]
-    this.store[key] = dataResolver(collection)
-    this.subjects[key].next(dataResolver(collection))
+    const collection = this.store.get(key)
+    this.store.set(key, dataResolver(collection))
+    this.subjects.get(key).next(dataResolver(collection))
   }
 
   public getSnapshot = () => this.store
-  public getAllKeys = () => Object.keys(this.subjects)
+  public getAllKeys = () => [...this.subjects.keys()]
   public getValue = (key: string) => {
-    return this.store[key]
+    return this.store.get(key)
   }
 
   public removeSubscription = (key: string) => {
-    const selectedSub = this.subjects[key]
+    const selectedSub = this.subjects.get(key)
     if (!selectedSub) return
     selectedSub.complete()
-    delete this.subjects[key]
+    this.subjects.delete(key)
   }
 }
