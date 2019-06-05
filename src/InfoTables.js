@@ -2,7 +2,39 @@ import * as React from 'react'
 
 import { TableContainer, LikesContainer, ListItem, ListHeader, AddPopup } from './styledComponents'
 import { USER_STORE } from './index.tsx'
+import { addUserLike, addUserDislike, deleteUserLike, deleteUserDislike } from './asyncData.ts'
 
+const addLike = (user, text) =>
+  addUserLike(user.user, text).then(updatedUser =>
+    USER_STORE.setAtomicValue('users', users => {
+      const targetUser = users.find(listUser => Object.is(listUser, user))
+      return users.map(listUser => (listUser === targetUser ? updatedUser : listUser))
+    })
+  )
+
+const deleteLike = (user, text) =>
+  deleteUserLike(user.user, text).then(updatedUser =>
+    USER_STORE.setAtomicValue('users', users => {
+      const targetUser = users.find(listUser => Object.is(listUser, user))
+      return users.map(listUser => (listUser === targetUser ? updatedUser : listUser))
+    })
+  )
+
+const addDislike = (user, text) =>
+  addUserDislike(user.user, text).then(updatedUser =>
+    USER_STORE.setAtomicValue('users', users => {
+      const targetUser = users.find(listUser => Object.is(listUser, user))
+      return users.map(listUser => (listUser === targetUser ? updatedUser : listUser))
+    })
+  )
+
+const deleteDislike = (user, text) =>
+  deleteUserDislike(user.user, text).then(updatedUser =>
+    USER_STORE.setAtomicValue('users', users => {
+      const targetUser = users.find(listUser => Object.is(listUser, user))
+      return users.map(listUser => (listUser === targetUser ? updatedUser : listUser))
+    })
+  )
 const LikesList = () => {
   const user = USER_STORE.getValue('selectedUser')
   const [isOpen, setIsOpen] = React.useState(false)

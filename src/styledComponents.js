@@ -104,21 +104,24 @@ export const Button = styled.button`
   }
 `
 
-export const AddPopup = ({ open, onChange, handleSubmit, text, closeModal }) => (
-  <Popup
-    open={open}
-    onSubmit={e => {
-      e.preventDefault()
-      handleSubmit().then(() => closeModal())
-    }}
-  >
-    <StyledInput autoFocus value={text} onChange={e => onChange(e.target.value)} />
-    <Button style={{ float: 'right' }} type="submit">
-      Submit
-    </Button>
-  </Popup>
-)
-
+export const AddPopup = ({ open, onChange, handleSubmit, text, closeModal }) => {
+  return (
+    <Popup
+      open={open}
+      onSubmit={e => {
+        e.preventDefault()
+        handleSubmit()
+        closeModal()
+        // FIXME .then(() => closeModal())
+      }}
+    >
+      <StyledInput autoFocus value={text} onChange={e => onChange(e.target.value)} />
+      <Button style={{ float: 'right' }} type="submit">
+        Submit
+      </Button>
+    </Popup>
+  )
+}
 export const Loader = ({ status, message }) =>
   status === 'REQUEST' ? (
     <svg x="0px" y="0px" width="100px" height="100px" viewBox="0 0 60 60">

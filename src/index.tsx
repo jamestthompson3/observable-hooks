@@ -5,24 +5,23 @@ import { get } from 'lodash'
 import { SharedSubjectStore } from '../hooks/sharedValue'
 import { PageWrapper, ListContainer, ListItem, Loader, UserContainer } from './styledComponents'
 import { InfoTables } from './InfoTables'
-import {
-  fetchUsers,
-  addUserLike,
-  addUserDislike,
-  deleteUserDislike,
-  deleteUserLike
-} from './asyncData'
+import { fetchUsers, User } from './asyncData'
 
 export const USER_STORE = new SharedSubjectStore()
 // for debugging
 window.user_store = USER_STORE
 
+function updateForKey(currentUsers: User[], nextUsers: User[], key: string) {}
+
 function IndexPage({ match, history }) {
+  console.log('indexpage rendered')
   // useState is necessary with these subscriptions to force top level re-renders
   const [userList, setUserList] = React.useState([])
   const [selectedUser, setSelectedUser] = React.useState(null)
   React.useEffect(() => {
-    USER_STORE.createSubscription('users').subscribe(users => setUserList(users))
+    USER_STORE.createSubscription('users').subscribe(users => {
+      setUserList(users)
+    })
     USER_STORE.createSubscription('selectedUser').subscribe(selected => setSelectedUser(selected))
     fetchUsers().then(users => {
       USER_STORE.setValue('users', users)

@@ -1,10 +1,12 @@
 import { Subject } from 'rxjs'
 
+type DataResolver = (dataSet: { [key: string]: any }[]) => any
 interface SharedSubject {
   getSubscriber(key: string): Subject<any>
   removeSubscriber(key: string): void
   createSubscription(key: string): Subject<any>
   setValue(key: string, value: any): void
+  setAtomicValue(key: string, dataResolver: DataResolver): void
   getAllKeys(): string[]
   getValue(key: string): any
 }
@@ -27,6 +29,12 @@ export class SharedSubjectStore implements SharedSubject {
   public setValue = (key: string, value: any) => {
     this.store[key] = value
     this.subjects[key].next(value)
+  }
+
+  public setAtomicValue = (key: string, dataResolver: DataResolver) => {
+    const collection = this.store[key]
+    this.store[key] = dataResolver(collection)
+    this.subjects[key].next(dataResolver(collection))
   }
 
   public getAllKeys = () => Object.keys(this.subjects)

@@ -1,3 +1,13 @@
+interface User {
+  user: string
+  likes: Item[]
+  dislikes: Item[]
+}
+
+interface Item {
+  id: number
+  item: string
+}
 const userList = [
   {
     user: 'sam',
@@ -74,18 +84,20 @@ const userList = [
 
 export const fetchUsers = () => new Promise((res, rej) => setTimeout(res, 1000, userList))
 
-export const deleteUserLike = (user, id) => new Promise((res, rej) => res({ status: 200 }))
+export const deleteUserLike = (user: User, id: number) =>
+  new Promise((res, rej) => res({ status: 200 }))
 
-export const deleteUserDislike = (user, id) => new Promise((res, rej) => res({ status: 200 }))
+export const deleteUserDislike = (user: User, id: number) =>
+  new Promise((res, rej) => res({ status: 200 }))
 
-export const addUserLike = (user, item) =>
+export const addUserLike = (user: string, item: string) =>
   new Promise((res, rej) => {
-    const selectedUser = userList.find(i => i.user === user)
+    const selectedUser: User = userList.find(i => i.user === user)
     selectedUser.likes = [...selectedUser.likes, { id: selectedUser.likes.length + 1, item }]
     return res(selectedUser)
   })
 
-export const addUserDislike = (user, item) =>
+export const addUserDislike = (user: string, item: string) =>
   new Promise((res, rej) => {
     const selectedUser = userList.find(i => i.user === user)
     selectedUser.dislikes = [
