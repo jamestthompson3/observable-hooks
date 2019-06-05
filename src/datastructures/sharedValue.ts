@@ -4,10 +4,13 @@ type DataResolver = (dataSet: { [key: string]: any }[]) => any
 interface SharedSubject {
   getSubscriber(key: string): Subject<any>
   removeSubscriber(key: string): void
+  getSubscription(key: string): Subject<any>
+  removeSubscription(key: string): void
   createSubscription(key: string): Subject<any>
   setValue(key: string, value: any): void
   setAtomicValue(key: string, dataResolver: DataResolver): void
   getAllKeys(): string[]
+  getSnapshot(): { [key: string]: any }
   getValue(key: string): any
 }
 
@@ -15,7 +18,7 @@ export class SharedSubjectStore implements SharedSubject {
   private subjects: { [key: string]: Subject<any> } = {}
   private store: { [key: string]: any } = {}
 
-  public getSubscriber = (key: string) => this.subjects[key]
+  public getSubscription = (key: string) => this.subjects[key]
 
   public createSubscription = (key: string) => {
     const subject = this.subjects[key]
@@ -37,16 +40,15 @@ export class SharedSubjectStore implements SharedSubject {
     this.subjects[key].next(dataResolver(collection))
   }
 
+  public getSnapshot = () => this.store
   public getAllKeys = () => Object.keys(this.subjects)
   public getValue = (key: string) => {
     return this.store[key]
   }
 
-  public removeSubscriber = (key: string) => {
+  public removeSubscription = (key: string) => {
     const selectedSub = this.subjects[key]
     if (!selectedSub) return
-    // broadcast to others that we're done here
-    selectedSub.next(undefined)
     selectedSub.complete()
     delete this.subjects[key]
   }
