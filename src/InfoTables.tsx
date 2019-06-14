@@ -6,7 +6,7 @@ import { addUserLike, addUserDislike, deleteUserLike, deleteUserDislike } from '
 
 const addLike = (user, text) =>
   addUserLike(user, text).then(updatedUser =>
-    USER_STORE.setAtomicValue('users', users => {
+    USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser === user)
       return users.map(listUser => (Object.is(listUser, targetUser) ? updatedUser : listUser))
     })
@@ -14,7 +14,7 @@ const addLike = (user, text) =>
 
 const deleteLike = (user, text) =>
   deleteUserLike(user, text).then(({ status }) =>
-    USER_STORE.setAtomicValue('users', users => {
+    USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
       return users.map(listUser =>
         Object.is(listUser, targetUser) && status === 200
@@ -26,7 +26,7 @@ const deleteLike = (user, text) =>
 
 const addDislike = (user, text) =>
   addUserDislike(user, text).then(updatedUser =>
-    USER_STORE.setAtomicValue('users', users => {
+    USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
       return users.map(listUser => (Object.is(listUser, targetUser) ? updatedUser : listUser))
     })
@@ -34,7 +34,7 @@ const addDislike = (user, text) =>
 
 const deleteDislike = (user, text) =>
   deleteUserDislike(user, text).then(({ status }) =>
-    USER_STORE.setAtomicValue('users', users => {
+    USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
       return users.map(listUser =>
         Object.is(listUser, targetUser) && status === 200

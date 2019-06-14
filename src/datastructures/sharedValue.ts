@@ -9,7 +9,7 @@ export interface SharedSubject {
   removeSubscription(key: string): void
   createSubscription(key: string): Subject<any>
   setValue(key: string, value: any): void
-  setAtomicValue(key: string, dataResolver: DataResolver): void
+  setWithResolver(key: string, dataResolver: DataResolver): void
   getAllKeys(): string[]
   getSnapshot(): { [key: string]: any }
   getValue(key: string): any
@@ -43,7 +43,7 @@ export class SharedSubjectStore implements SharedSubject {
     this.subjects.get(key).next(value)
   }
 
-  public setAtomicValue = (key: string, dataResolver: DataResolver) => {
+  public setWithResolver = (key: string, dataResolver: DataResolver) => {
     const collection = this.store.get(key)
     this.store.set(key, dataResolver(collection))
     this.subjects.get(key).next(dataResolver(collection))

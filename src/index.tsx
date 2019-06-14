@@ -31,28 +31,22 @@ function IndexPage({ match, history }) {
   const [userList, setUserList] = React.useState([])
   const [selectedUser, setSelectedUser] = React.useState(null)
   const userSub = useSelector(USER_STORE, 'users', memoUsers(setUserList))
-  const selectedUserSub = useSelector(USER_STORE, 'selectedUser', user => setSelectedUser(user))
+  const selectedUserSub = useSelector(USER_STORE, 'selectedUser', setSelectedUser)
   React.useEffect(() => {
     fetchUsers().then(users => {
       USER_STORE.setValue('users', users)
     })
   }, [])
   const userParam = get(match, 'params.user')
-  React.useEffect(
-    () => {
-      USER_STORE.setValue('selectedUser', userList.find(user => user.user === userParam))
-    },
-    [userList]
-  )
+  React.useEffect(() => {
+    USER_STORE.setValue('selectedUser', userList.find(user => user.user === userParam))
+  }, [userList])
 
-  React.useEffect(
-    () => {
-      if (selectedUser) {
-        userParam !== selectedUser.user && history.push(`/${selectedUser.user}`)
-      }
-    },
-    [selectedUser]
-  )
+  React.useEffect(() => {
+    if (selectedUser) {
+      userParam !== selectedUser.user && history.push(`/${selectedUser.user}`)
+    }
+  }, [selectedUser])
   const userSelect = user => {
     const foundUser = userList.find(userInList => userInList.user === user.user)
     USER_STORE.setValue('selectedUser', foundUser)
