@@ -8,7 +8,7 @@ const addLike = (user, text) =>
   addUserLike(user, text).then(updatedUser =>
     USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser === user)
-      return users.map(listUser => (Object.is(listUser, targetUser) ? updatedUser : listUser))
+      return users.map(listUser => (listUser.user === targetUser.user ? updatedUser : listUser))
     })
   )
 
@@ -17,7 +17,7 @@ const deleteLike = (user, text) =>
     USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
       return users.map(listUser =>
-        Object.is(listUser, targetUser) && status === 200
+        listUser.user === targetUser.user && status === 200
           ? { ...listUser, likes: listUser.likes.filter(like => like !== text) }
           : listUser
       )
@@ -28,7 +28,7 @@ const addDislike = (user, text) =>
   addUserDislike(user, text).then(updatedUser =>
     USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
-      return users.map(listUser => (Object.is(listUser, targetUser) ? updatedUser : listUser))
+      return users.map(listUser => (listUser.user === targetUser.user ? updatedUser : listUser))
     })
   )
 
@@ -37,7 +37,7 @@ const deleteDislike = (user, text) =>
     USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
       return users.map(listUser =>
-        Object.is(listUser, targetUser) && status === 200
+        listUser.user === targetUser.user && status === 200
           ? { ...listUser, dislikes: listUser.dislikes.filter(dislike => dislike !== text) }
           : listUser
       )
