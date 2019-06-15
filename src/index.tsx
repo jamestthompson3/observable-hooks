@@ -10,11 +10,13 @@ function memoUsers(updateUser) {
   const cache = {}
   return function(userList: User[]) {
     const key = JSON.stringify(userList.map(user => user.user))
+    console.log(key, cache[key])
     if (cache[key]) {
       // don't call to re-render
     } else {
+      console.log(`%cNOT CACHED`, 'background: hotpink;')
       cache[key] = key
-      updateUser.apply(null, arguments)
+      updateUser(userList)
     }
   }
 }
@@ -24,12 +26,14 @@ USER_STORE.createSubscription('users')
 USER_STORE.createSubscription('selectedUser')
 
 function IndexPage() {
-  console.log('indexpage rendered') // we should expect this to only happen twice
+  console.log('indexpage rendered')
   // useState is necessary with these subscriptions to force top level re-renders
   const [userList, setUserList] = React.useState([])
   const [selectedUser, setSelectedUser] = React.useState(null)
-  const userSub = useSelector(USER_STORE, 'users', memoUsers(setUserList))
+  const setCachedUserList = memoUsers(setUserList)
+  const userSub = useSelector(USER_STORE, 'users', setCachedUserList)
   const selectedUserSub = useSelector(USER_STORE, 'selectedUser', setSelectedUser)
+
   React.useEffect(() => {
     fetchUsers().then((users: User[]) => {
       USER_STORE.setValue('users', users)

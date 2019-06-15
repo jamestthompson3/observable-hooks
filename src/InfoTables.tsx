@@ -2,47 +2,53 @@ import * as React from 'react'
 
 import { TableContainer, LikesContainer, ListItem, ListHeader, AddPopup } from './styledComponents'
 import { USER_STORE } from './index'
-import { addUserLike, addUserDislike, deleteUserLike, deleteUserDislike } from './asyncData.ts'
+import { addUserLike, addUserDislike, deleteUserLike, deleteUserDislike } from './asyncData'
 
-const addLike = (user, text) =>
+const addLike = (user, text) => {
   addUserLike(user, text).then(updatedUser =>
     USER_STORE.setWithResolver('users', users => {
-      const targetUser = users.find(listUser => listUser === user)
+      const targetUser = users.find(listUser => listUser.user === user)
       return users.map(listUser => (listUser.user === targetUser.user ? updatedUser : listUser))
     })
   )
+}
 
-const deleteLike = (user, text) =>
+const deleteLike = (user, text) => {
   deleteUserLike(user, text).then(({ status }) =>
     USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
+      console.log(targetUser.likes.filter(like => like.id !== text.id))
       return users.map(listUser =>
         listUser.user === targetUser.user && status === 200
-          ? { ...listUser, likes: listUser.likes.filter(like => like !== text) }
+          ? { ...listUser, likes: listUser.likes.filter(like => like.id !== text.id) }
           : listUser
       )
     })
   )
+}
 
-const addDislike = (user, text) =>
+const addDislike = (user, text) => {
   addUserDislike(user, text).then(updatedUser =>
     USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
       return users.map(listUser => (listUser.user === targetUser.user ? updatedUser : listUser))
     })
   )
+}
 
-const deleteDislike = (user, text) =>
+const deleteDislike = (user, text) => {
   deleteUserDislike(user, text).then(({ status }) =>
     USER_STORE.setWithResolver('users', users => {
       const targetUser = users.find(listUser => listUser.user === user)
       return users.map(listUser =>
         listUser.user === targetUser.user && status === 200
-          ? { ...listUser, dislikes: listUser.dislikes.filter(dislike => dislike !== text) }
+          ? { ...listUser, dislikes: listUser.dislikes.filter(dislike => dislike.id !== text.id) }
           : listUser
       )
     })
   )
+}
+
 const LikesList = () => {
   const user = USER_STORE.getValue('selectedUser')
   const [isOpen, setIsOpen] = React.useState(false)
