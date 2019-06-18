@@ -9,7 +9,6 @@ export interface SharedSubject {
   removeSubscription(key: string): void
   createSubscription(key: string): Subject<any>
   setValue(key: string, value: any): void
-  setWithResolver(key: string, dataResolver: DataResolver): void
   getAllKeys(): string[]
   getSnapshot(): { [key: string]: any }
   getValue(key: string): any
@@ -41,13 +40,6 @@ export class SharedSubjectStore implements SharedSubject {
   public setValue = (key: string, value: any) => {
     this.store.set(key, value)
     this.subjects.get(key).next(value)
-  }
-
-  public setWithResolver = (key: string, dataResolver: DataResolver) => {
-    const collection = this.store.get(key)
-    console.log('SETTING W/ RESOLVER: ', dataResolver(collection))
-    this.store.set(key, dataResolver(collection))
-    this.subjects.get(key).next(dataResolver(collection))
   }
 
   public getSnapshot = () => this.store
