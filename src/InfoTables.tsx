@@ -8,25 +8,23 @@ import { addUserLike, User, addUserDislike, deleteUserLike, deleteUserDislike } 
 const addLike = text => {
   const selectedUser = USER_STORE.getValue('selectedUser')
   const users = USER_STORE.getValue('users')
-  addUserLike(selectedUser.user, text).then(({ status }) => {
+  addUserLike(selectedUser.user, text).then(updatedUser => {
     const targetUser = users.find(listUser => listUser.user === selectedUser.user)
     const newUsers = users.map(listUser =>
-      listUser.user === targetUser.user
-        ? { ...listUser, likes: [...listUser.likes, { id: listUser.likes.length + 1, item: text }] }
-        : listUser
+      listUser.user === targetUser.user ? updatedUser : listUser
     )
     USER_STORE.setValue('users', newUsers)
   })
 }
 
-const deleteLike = text => {
+const deleteLike = like => {
   const selectedUser = USER_STORE.getValue('selectedUser')
   const users = USER_STORE.getValue('users')
-  deleteUserLike(selectedUser.user, text).then(({ status }) => {
+  deleteUserLike(selectedUser.user, like).then(({ status }) => {
     const targetUser = users.find(listUser => listUser.user === selectedUser.user)
     const newUsers = users.map(listUser =>
       listUser.user === targetUser.user && status === 200
-        ? { ...listUser, likes: listUser.likes.filter(like => like.id !== text.id) }
+        ? { ...listUser, likes: listUser.likes.filter(like => like.id !== like.id) }
         : listUser
     )
 
@@ -37,7 +35,7 @@ const deleteLike = text => {
 const addDislike = text => {
   const selectedUser = USER_STORE.getValue('selectedUser')
   const users = USER_STORE.getValue('users')
-  addUserDislike(selectedUser.user, text).then(({ status }) => {
+  addUserDislike(selectedUser.user, text).then(updatedUser => {
     const targetUser = users.find(listUser => listUser.user === selectedUser.user)
     const newUsers = users.map(listUser =>
       listUser.user === targetUser.user
@@ -51,14 +49,14 @@ const addDislike = text => {
   })
 }
 
-const deleteDislike = text => {
+const deleteDislike = dislike => {
   const selectedUser = USER_STORE.getValue('selectedUser')
   const users = USER_STORE.getValue('users')
-  deleteUserDislike(selectedUser.user, text).then(({ status }) => {
+  deleteUserDislike(selectedUser.user, dislike).then(({ status }) => {
     const targetUser = users.find(listUser => listUser.user === selectedUser.user)
     const newUsers = users.map(listUser =>
       listUser.user === targetUser.user && status === 200
-        ? { ...listUser, dislikes: listUser.dislikes.filter(dislike => dislike.id !== text.id) }
+        ? { ...listUser, dislikes: listUser.dislikes.filter(dislike => dislike.id !== dislike.id) }
         : listUser
     )
 
@@ -69,6 +67,13 @@ const deleteDislike = text => {
 const LikesList = () => {
   const selectedUser = USER_STORE.getValue('selectedUser')
   const [userLikes, setUserLikes] = React.useState(selectedUser.likes)
+  React.useEffect(
+    () => {
+      console.log(selectedUser)
+      setUserLikes(selectedUser.likes)
+    },
+    [selectedUser]
+  )
   USER_STORE.getSubscription('users').subscribe(users => {
     const user = users.find(user => user.user === selectedUser.user)
     setUserLikes(user.likes)

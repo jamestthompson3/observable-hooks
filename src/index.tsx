@@ -45,6 +45,7 @@ function IndexPage() {
     const foundUser = userList.find(userInList => userInList.user === user.user)
     USER_STORE.setValue('selectedUser', foundUser)
   }
+  console.log('IN INDEX: ', selectedUser)
 
   return (
     <PageWrapper>
@@ -52,7 +53,11 @@ function IndexPage() {
         <h3>Users</h3>
         <ListContainer style={{ height: '500px' }}>
           {userList.map((user: User, i: number) => (
-            <ListItem key={i} onClick={() => userSelect(user)} selected={user === selectedUser}>
+            <ListItem
+              key={i}
+              onClick={() => userSelect(user)}
+              selected={selectedUser && user.user === selectedUser.user}
+            >
               <p>{user.user}</p>
             </ListItem>
           ))}

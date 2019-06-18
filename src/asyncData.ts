@@ -85,14 +85,35 @@ const userList = [
 
 export const fetchUsers = () => new Promise((res, rej) => setTimeout(res, 1000, userList))
 
-export const deleteUserLike = (user: string, id: number) =>
-  new Promise((res, rej) => res({ status: 200 }))
+export const deleteUserLike = (user: string, like: Item) =>
+  new Promise((res, rej) => {
+    const selectedUser: User = userList.find(i => i.user === user)
+    selectedUser.likes = selectedUser.likes.filter(userlike => userlike.id !== like.id)
+    return res(selectedUser)
+  })
 
-export const deleteUserDislike = (user: string, id: number) =>
-  new Promise((res, rej) => res({ status: 200 }))
+export const deleteUserDislike = (user: string, dislike: Item) =>
+  new Promise((res, rej) => {
+    const selectedUser: User = userList.find(i => i.user === user)
+    selectedUser.dislikes = selectedUser.dislikes.filter(
+      userdislike => userdislike.id !== dislike.id
+    )
+    return res(selectedUser)
+  })
 
 export const addUserLike = (user: string, item: string) =>
-  new Promise((res, rej) => res({ status: 200 }))
+  new Promise((res, rej) => {
+    const selectedUser: User = userList.find(i => i.user === user)
+    selectedUser.likes = [...selectedUser.likes, { id: selectedUser.likes.length + 1, item }]
+    return res(selectedUser)
+  })
 
 export const addUserDislike = (user: string, item: string) =>
-  new Promise((res, rej) => res({ status: 200 }))
+  new Promise((res, rej) => {
+    const selectedUser = userList.find(i => i.user === user)
+    selectedUser.dislikes = [
+      ...selectedUser.dislikes,
+      { id: selectedUser.dislikes.length + 1, item }
+    ]
+    return res(selectedUser)
+  })
