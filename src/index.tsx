@@ -6,17 +6,17 @@ import { PageWrapper, ListContainer, ListItem, UserContainer } from './styledCom
 import { InfoTables } from './InfoTables'
 import { fetchUsers, User } from './asyncData'
 
-function memoUsers(updateUser) {
+function memoUsers() {
   const cache = {}
-  return function(userList: User[]) {
-    const key = JSON.stringify(userList.map(user => user.user))
-    console.log(key, cache[key])
-    if (cache[key]) {
-      // don't call to re-render
-    } else {
-      console.log(`%cNOT CACHED`, 'background: hotpink;')
-      cache[key] = key
-      updateUser(userList)
+  return function(updateUser) {
+    return function(userList: User[]) {
+      const key = JSON.stringify(userList.map(user => user.user))
+      if (cache[key]) {
+        // don't call to re-render
+      } else {
+        cache[key] = key
+        updateUser(userList)
+      }
     }
   }
 }
@@ -24,15 +24,16 @@ function memoUsers(updateUser) {
 export const USER_STORE = new SharedSubjectStore()
 USER_STORE.createSubscription('users')
 USER_STORE.createSubscription('selectedUser')
+const cache = memoUsers()
 
 function IndexPage() {
   console.log('indexpage rendered')
   // useState is necessary with these subscriptions to force top level re-renders
   const [userList, setUserList] = React.useState([])
   const [selectedUser, setSelectedUser] = React.useState(null)
-  const setCachedUserList = memoUsers(setUserList)
-  const userSub = useSelector(USER_STORE, 'users', setCachedUserList)
-  const selectedUserSub = useSelector(USER_STORE, 'selectedUser', setSelectedUser)
+  const setCachedUserList = cache(setUserList)
+  useSelector(USER_STORE, 'users', setCachedUserList)
+  useSelector(USER_STORE, 'selectedUser', setSelectedUser)
 
   React.useEffect(() => {
     fetchUsers().then((users: User[]) => {

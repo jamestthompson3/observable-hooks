@@ -45,6 +45,7 @@ export class SharedSubjectStore implements SharedSubject {
 
   public setWithResolver = (key: string, dataResolver: DataResolver) => {
     const collection = this.store.get(key)
+    console.log('SETTING W/ RESOLVER: ', dataResolver(collection))
     this.store.set(key, dataResolver(collection))
     this.subjects.get(key).next(dataResolver(collection))
   }

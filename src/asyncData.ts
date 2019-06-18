@@ -92,18 +92,7 @@ export const deleteUserDislike = (user: string, id: number) =>
   new Promise((res, rej) => res({ status: 200 }))
 
 export const addUserLike = (user: string, item: string) =>
-  new Promise((res, rej) => {
-    const selectedUser: User = userList.find(i => i.user === user)
-    selectedUser.likes = [...selectedUser.likes, { id: selectedUser.likes.length + 1, item }]
-    return res(selectedUser)
-  })
+  new Promise((res, rej) => res({ status: 200 }))
 
 export const addUserDislike = (user: string, item: string) =>
-  new Promise((res, rej) => {
-    const selectedUser = userList.find(i => i.user === user)
-    selectedUser.dislikes = [
-      ...selectedUser.dislikes,
-      { id: selectedUser.dislikes.length + 1, item }
-    ]
-    return res(selectedUser)
-  })
+  new Promise((res, rej) => res({ status: 200 }))

@@ -1,56 +1,78 @@
 import * as React from 'react'
 
 import { TableContainer, LikesContainer, ListItem, ListHeader, AddPopup } from './styledComponents'
+import { useSelector } from '../hooks/use-data-store.hook'
 import { USER_STORE } from './index'
-import { addUserLike, addUserDislike, deleteUserLike, deleteUserDislike } from './asyncData'
+import { addUserLike, User, addUserDislike, deleteUserLike, deleteUserDislike } from './asyncData'
 
-const addLike = (user, text) => {
-  addUserLike(user, text).then(updatedUser =>
-    USER_STORE.setWithResolver('users', users => {
-      const targetUser = users.find(listUser => listUser.user === user)
-      return users.map(listUser => (listUser.user === targetUser.user ? updatedUser : listUser))
-    })
-  )
+const addLike = text => {
+  const selectedUser = USER_STORE.getValue('selectedUser')
+  const users = USER_STORE.getValue('users')
+  addUserLike(selectedUser.user, text).then(({ status }) => {
+    const targetUser = users.find(listUser => listUser.user === selectedUser.user)
+    const newUsers = users.map(listUser =>
+      listUser.user === targetUser.user
+        ? { ...listUser, likes: [...listUser.likes, { id: listUser.likes.length + 1, item: text }] }
+        : listUser
+    )
+    USER_STORE.setValue('users', newUsers)
+  })
 }
 
-const deleteLike = (user, text) => {
-  deleteUserLike(user, text).then(({ status }) =>
-    USER_STORE.setWithResolver('users', users => {
-      const targetUser = users.find(listUser => listUser.user === user)
-      console.log(targetUser.likes.filter(like => like.id !== text.id))
-      return users.map(listUser =>
-        listUser.user === targetUser.user && status === 200
-          ? { ...listUser, likes: listUser.likes.filter(like => like.id !== text.id) }
-          : listUser
-      )
-    })
-  )
+const deleteLike = text => {
+  const selectedUser = USER_STORE.getValue('selectedUser')
+  const users = USER_STORE.getValue('users')
+  deleteUserLike(selectedUser.user, text).then(({ status }) => {
+    const targetUser = users.find(listUser => listUser.user === selectedUser.user)
+    const newUsers = users.map(listUser =>
+      listUser.user === targetUser.user && status === 200
+        ? { ...listUser, likes: listUser.likes.filter(like => like.id !== text.id) }
+        : listUser
+    )
+
+    USER_STORE.setValue('users', newUsers)
+  })
 }
 
-const addDislike = (user, text) => {
-  addUserDislike(user, text).then(updatedUser =>
-    USER_STORE.setWithResolver('users', users => {
-      const targetUser = users.find(listUser => listUser.user === user)
-      return users.map(listUser => (listUser.user === targetUser.user ? updatedUser : listUser))
-    })
-  )
+const addDislike = text => {
+  const selectedUser = USER_STORE.getValue('selectedUser')
+  const users = USER_STORE.getValue('users')
+  addUserDislike(selectedUser.user, text).then(({ status }) => {
+    const targetUser = users.find(listUser => listUser.user === selectedUser.user)
+    const newUsers = users.map(listUser =>
+      listUser.user === targetUser.user
+        ? {
+            ...listUser,
+            dislikes: [...listUser.dislikes, { id: listUser.dislikes.length + 1, item: text }]
+          }
+        : listUser
+    )
+    USER_STORE.setValue('users', newUsers)
+  })
 }
 
-const deleteDislike = (user, text) => {
-  deleteUserDislike(user, text).then(({ status }) =>
-    USER_STORE.setWithResolver('users', users => {
-      const targetUser = users.find(listUser => listUser.user === user)
-      return users.map(listUser =>
-        listUser.user === targetUser.user && status === 200
-          ? { ...listUser, dislikes: listUser.dislikes.filter(dislike => dislike.id !== text.id) }
-          : listUser
-      )
-    })
-  )
+const deleteDislike = text => {
+  const selectedUser = USER_STORE.getValue('selectedUser')
+  const users = USER_STORE.getValue('users')
+  deleteUserDislike(selectedUser.user, text).then(({ status }) => {
+    const targetUser = users.find(listUser => listUser.user === selectedUser.user)
+    const newUsers = users.map(listUser =>
+      listUser.user === targetUser.user && status === 200
+        ? { ...listUser, dislikes: listUser.dislikes.filter(dislike => dislike.id !== text.id) }
+        : listUser
+    )
+
+    USER_STORE.setValue('users', newUsers)
+  })
 }
 
 const LikesList = () => {
-  const user = USER_STORE.getValue('selectedUser')
+  const selectedUser = USER_STORE.getValue('selectedUser')
+  const [userLikes, setUserLikes] = React.useState(selectedUser.likes)
+  USER_STORE.getSubscription('users').subscribe(users => {
+    const user = users.find(user => user.user === selectedUser.user)
+    setUserLikes(user.likes)
+  })
   const [isOpen, setIsOpen] = React.useState(false)
   const [text, setText] = React.useState('')
   const toggleModal = () => setIsOpen(!isOpen)
@@ -67,14 +89,14 @@ const LikesList = () => {
         <AddPopup
           open={isOpen}
           onChange={setText}
-          handleSubmit={() => addLike(user.user, text)}
+          handleSubmit={() => addLike(text)}
           closeModal={toggleModal}
           text={text}
         />
-        {user.likes.map(like => (
+        {userLikes.map(like => (
           <ListItem open={isOpen} key={like.item + like.id}>
             {like.item}
-            <i className="material-icons" onClick={() => deleteLike(user.user, like)}>
+            <i className="material-icons" onClick={() => deleteLike(like)}>
               delete
             </i>
           </ListItem>
@@ -85,10 +107,15 @@ const LikesList = () => {
 }
 
 const DislikesList = () => {
-  const user = USER_STORE.getValue('selectedUser')
   const [isOpen, setIsOpen] = React.useState(false)
   const [text, setText] = React.useState('')
   const toggleModal = () => setIsOpen(!isOpen)
+  const selectedUser = USER_STORE.getValue('selectedUser')
+  const [userDislikes, setUserLikes] = React.useState(selectedUser.likes)
+  USER_STORE.getSubscription('users').subscribe(users => {
+    const user = users.find(user => user.user === selectedUser.user)
+    setUserLikes(user.dislikes)
+  })
   return (
     <>
       <ListHeader>
@@ -101,14 +128,14 @@ const DislikesList = () => {
         <AddPopup
           open={isOpen}
           onChange={setText}
-          handleSubmit={() => addDislike(user.user, text)}
+          handleSubmit={() => addDislike(text)}
           closeModal={toggleModal}
           text={text}
         />
-        {user.dislikes.map(dislike => (
+        {userDislikes.map(dislike => (
           <ListItem open={isOpen} key={dislike.item + dislike.id}>
             {dislike.item}
-            <i className="material-icons" onClick={() => deleteDislike(user.user, dislike)}>
+            <i className="material-icons" onClick={() => deleteDislike(dislike)}>
               delete
             </i>
           </ListItem>
